@@ -1,0 +1,11 @@
+load wiki
+findall wiki
+inorder
+// insert a
+// insert b
+// insert c
+// insert d
+// insert aa
+// insert g
+// inorder
+// find g

@@ -1,0 +1,26 @@
+17
+max
+insert aaa
+insert a
+insert b
+insert ab
+find a
+delete a
+delete b
+max
+load sample
+find three
+delete three
+find three
+find Three
+delete Three
+find Three
+delete five
+min
+delete two
+successor e
+delete w
+max
+inorder
+delete e
+max

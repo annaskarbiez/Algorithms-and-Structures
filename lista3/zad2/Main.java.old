@@ -1,0 +1,292 @@
+import java.util.Random;
+import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Collections;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        if (!(args[0].equals("-p") || args[0].equals("-r"))) {
+            System.exit(0);
+        }
+
+        Scanner input = new Scanner(System.in);
+
+        int n = input.nextInt();
+        int k = input.nextInt();
+        input.close();
+        int[] array = createArray(n, args[0]);
+
+        System.out.println("\nk = " + k);
+
+        int[] array_select = Arrays.copyOf(array, n);
+        RandomSelect random = new RandomSelect();
+        System.out.println("\nRANDOM SELECT");
+        random.random_selection(array_select, 0, n - 1, k);
+        System.out.println("\n >>Comparisons: " + random.getCompareNumber() + " >>Swaps: " + random.getSwapNumber());
+        output(n, k, array_select);
+
+        System.out.println("\n----------------------------------\n");
+
+        // int[] array_randomized = Arrays.copyOf(array, n);
+        // Select select = new Select();
+        // System.out.println("\nSELECT");
+        // select.selection(array_randomized, k);
+        // System.err.println(" >>Comparisons: " + select.getCompareNumber() + " >>Swaps: " + select.getSwapNumber());
+        // output(n, k, array_randomized);
+    }
+
+
+    private static int[] createArray(int n, String type) {
+        int[] array = new int[n];
+        if (type.equals("-p")) {
+            for (int i = 0; i < n; i++)
+                array[i] = i;
+
+            List<Integer> list = new ArrayList<>();
+            for (int i : array) {
+                list.add(i);
+            }
+            Collections.shuffle(list);
+
+            for (int i = 0; i < list.size(); i++) {
+                array[i] = list.get(i);
+            }
+        }
+        if (type.equals("-r")) {
+            Random generator = new Random();
+
+            for (int i = 0; i < n; i++) {
+                array[i] = generator.nextInt(n);
+            }
+        }
+
+        for (int i = 0; i < n; i++)
+            System.out.print(array[i] + " ");
+        return array;
+    }
+
+    private static void output(int n, int k, int[] array) {
+        for (int i = 0; i < n; i++) {
+            if (i == k) {
+                System.out.print("[" + array[i] + "] ");
+            } else {
+                System.out.print(array[i] + " ");
+            }
+        }
+    }
+}
+
+class RandomSelect {
+
+    private int swapNumber;
+    private int comparisonsNumber;
+
+    int random_selection(int[] array, int begin, int end, int k) {
+
+        if (begin == end) {
+            // System.err.println(">>compare: " + begin + " " + end);
+            comparisonsNumber++;
+            return array[begin];
+        }
+
+        if (k > 0 && k <= end - begin + 1) {
+
+            // System.err.println(">>compare: " + k + " " + "0" + (end - begin + 1));
+            comparisonsNumber++;
+
+            int index = partition(array, begin, end);
+            if (index - begin == k - 1) {
+
+                // System.err.println(">>compare: " + (index - begin) + " " + (k - 1));
+                comparisonsNumber++;
+
+                return array[index];
+            }
+            if (index - begin > k - 1) {
+
+                // System.err.println(">>compare: " + (index - begin) + " " + (k - 1));
+                comparisonsNumber++;
+
+                return random_selection(array, begin, index - 1, k);
+            }
+            return random_selection(array, index + 1, end, k - index + begin - 1);
+        }
+        return -1;
+    }
+
+    private int partition(int[] array, int left, int right) {
+
+        int end = array[right];
+        // System.err.println(">>pivot<<: " + end);
+        int idX = left;
+        for (int j = left; j <= right - 1; j++) {
+
+            // System.err.println(">>compare: " + array[j] + " " + end);
+            comparisonsNumber++;
+
+            if (array[j] <= end) {
+
+                // System.err.println(">>swap: " + array[j] + " " + array[idX]);
+                swapNumber++;
+
+                int temp = array[idX];
+                array[idX] = array[j];
+                array[j] = temp;
+                idX++;
+            }
+        }
+
+        // System.err.println("swap: " + array[idX] + " " + array[right]);
+        swapNumber++;
+
+        int temp = array[idX];
+        array[idX] = array[right];
+        array[right] = temp;
+        return idX;
+    }
+
+    int getCompareNumber() {
+        return comparisonsNumber;
+    }
+
+    int getSwapNumber() {
+        return swapNumber;
+    }
+}
+
+class Select {
+
+    private int swapNumber;
+    private int comparisonsNumber;
+
+    void selection(int[] array, int k) {
+        select(array, 0, array.length - 1, (k - 1));
+    }
+
+    private int select(int[] array, int left, int right, int k) {
+
+        if (left == right) {
+            // System.err.println(">>compare: " + left + " " + right);
+            comparisonsNumber++;
+            return left;
+        }
+
+        int pivotIndex = pivot(array, left, right);
+        pivotIndex = partition(array, left, array.length - 1, pivotIndex);
+
+        if (k == pivotIndex) {
+            // System.err.println(">>compare: " + pivotIndex + " " + k);
+            comparisonsNumber++;
+            return k;
+        } else if (k < pivotIndex) {
+            // System.err.println(">>compare: " + pivotIndex + " " + k);
+            comparisonsNumber++;
+            return select(array, left, pivotIndex - 1, k);
+        } else {
+            return select(array, pivotIndex + 1, right, k);
+        }
+    }
+
+    private int pivot(int[] array, int left, int right) {
+
+        if (right - left <= 5) {
+            // System.err.println(">>compare: " + (right - left) + " " + 5);
+            comparisonsNumber++;
+            return median(array, left, right);
+        } else {
+
+            for (int i = 0; i <= right; i += 5) {
+                int subRight = i + 4;
+
+                // System.err.println(">>compare: " + subRight + " " + right);
+                comparisonsNumber++;
+
+                if (subRight > right)
+                    subRight = right;
+
+                int median = median(array, i, subRight);
+
+                // System.err.println("swap: " + array[i + median] + " " + array[left + (int) Math.floor((i - left) / 5)]);
+                swapNumber++;
+
+                int temp = array[i + median];
+                array[i + median] = array[left + (int) Math.floor((i - left) / 5)];
+                array[left + (int) Math.floor((i - left) / 5)] = temp;
+            }
+            return select(array, left, left + (int) Math.ceil(((right - left) / 5)) - 1, left + (right - left) / 10);
+        }
+    }
+
+
+    private int partition(int[] array, int init, int last, int pivotIndex) {
+        int pivotValue = array[pivotIndex];
+        int lastAssignedPos = init;
+
+        // System.err.println(">>swap: " + array[pivotIndex] + " " + array[last]);
+        swapNumber++;
+
+        int temp = array[pivotIndex];
+        array[pivotIndex] = array[last];
+        array[last] = temp;
+
+        for (int i = init; i < last; ++i) {
+
+            // System.err.println(">>compare: " + array[i] + " " + pivotValue);
+            comparisonsNumber++;
+
+            if (array[i] < pivotValue) {
+
+                // System.err.println(">>swap: " + array[lastAssignedPos] + " " + array[i]);
+                swapNumber++;
+
+                temp = array[lastAssignedPos];
+                array[lastAssignedPos] = array[i];
+                array[i] = temp;
+                ++lastAssignedPos;
+            }
+        }
+
+        // System.err.println(">>swap: " + array[last] + " " + array[lastAssignedPos]);
+        swapNumber++;
+
+        temp = array[lastAssignedPos];
+        array[lastAssignedPos] = array[last];
+        array[last] = temp;
+        return lastAssignedPos;
+    }
+
+    private int median(int[] array, int left, int right) {
+
+        for (int i = left + 1; i < right; ++i) {
+            for (int j = i; j > left; --j) {
+
+                // System.err.println(">>compare: " + array[j] + " " + array[j - 1]);
+                comparisonsNumber++;
+
+                if (array[j] < array[j - 1]) {
+
+                    // System.err.println(">>swap: " + array[j] + " " + array[j - 1]);
+                    swapNumber++;
+                    int temp = array[j];
+                    array[j] = array[j - 1];
+                    array[j - 1] = temp;
+                } else {
+                    break;
+                }
+            }
+        }
+        return ((right - left) / 2);
+    }
+
+    int getCompareNumber() {
+        return comparisonsNumber;
+    }
+
+    int getSwapNumber() {
+        return swapNumber;
+    }
+}
