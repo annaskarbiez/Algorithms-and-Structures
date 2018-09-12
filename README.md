@@ -18,4 +18,4 @@ A set of programs created by me on my  'Algorithms and Data Structures' labs. Co
 
 
 ... and more.
-Commpares and swaps are counting. Some charts in python.
+Commpares and swaps are beeing counting as well as time of alghoritm, complexity and memory needed. Some charts printed in python.
